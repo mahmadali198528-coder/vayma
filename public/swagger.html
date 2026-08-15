@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Medrese API Swagger</title>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui.css" />
+    <style>
+      html { box-sizing: border-box; overflow-y: scroll; }
+      *, *:before, *:after { box-sizing: inherit; }
+      body {
+        margin: 0;
+        background: #f7f7f7;
+        font-family: Arial, sans-serif;
+      }
+      #swagger-ui {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.17.14/swagger-ui-bundle.js"></script>
+    <script>
+      window.onload = () => {
+        SwaggerUIBundle({
+          url: '/openapi.yaml',
+          dom_id: '#swagger-ui',
+          deepLinking: true,
+          persistAuthorization: true,
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.presets.standalone],
+          layout: 'BaseLayout',
+        });
+      };
+    </script>
+  </body>
+</html>

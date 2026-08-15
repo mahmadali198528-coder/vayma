@@ -1,0 +1,768 @@
+openapi: 3.0.3
+info:
+  title: Medrese API
+  version: 1.0.0
+  description: |
+    Документация по публичному API сайта медресе.
+    Данные заявок сохраняются в закрытую таблицу Supabase medrese2.
+servers:
+  - url: http://localhost:3002
+paths:
+  /api/applications:
+    post:
+      summary: Отправить заявку на обучение
+      tags:
+        - Applications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationInput'
+      responses:
+        '201':
+          description: Заявка успешно создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationCreateResponse'
+        '400':
+          description: Ошибка валидации данных
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Слишком много запросов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Сервис недоступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/login:
+    post:
+      summary: Войти в админку
+      tags:
+        - Admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+                  example: admin123
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+        '401':
+          description: Неверный пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/admin/logout:
+    post:
+      summary: Выйти из админки
+      tags:
+        - Admin
+      responses:
+        '200':
+          description: Успешный выход
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+
+  /api/admin/applications:
+    get:
+      summary: Получить список заявок
+      tags:
+        - Admin
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ApplicationListItem'
+        '401':
+          description: Не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/programs:
+    get:
+      summary: Получить список образовательных программ
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Список программ
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProgramItem'
+    post:
+      summary: Создать новую программу
+      tags:
+        - Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramInput'
+      responses:
+        '201':
+          description: Программа создана
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProgramItem'
+
+  /api/programs/{id}:
+    get:
+      summary: Получить программу по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Программа найдена
+    put:
+      summary: Обновить программу по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProgramInput'
+      responses:
+        '200':
+          description: Программа обновлена
+    delete:
+      summary: Удалить программу по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Программа удалена
+
+  /api/news:
+    get:
+      summary: Получить список новостей
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Список новостей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NewsItem'
+    post:
+      summary: Создать новость
+      tags:
+        - Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsInput'
+      responses:
+        '201':
+          description: Новость создана
+
+  /api/news/{id}:
+    get:
+      summary: Получить новость по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Новость найдена
+    put:
+      summary: Обновить новость по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsInput'
+      responses:
+        '200':
+          description: Новость обновлена
+    delete:
+      summary: Удалить новость по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Новость удалена
+
+  /api/events:
+    get:
+      summary: Получить список событий
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Список событий
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EventItem'
+    post:
+      summary: Создать событие
+      tags:
+        - Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventInput'
+      responses:
+        '201':
+          description: Событие создано
+
+  /api/events/{id}:
+    get:
+      summary: Получить событие по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Событие найдено
+    put:
+      summary: Обновить событие по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventInput'
+      responses:
+        '200':
+          description: Событие обновлено
+    delete:
+      summary: Удалить событие по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Событие удалено
+
+  /api/teachers:
+    get:
+      summary: Получить список преподавателей
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Список преподавателей
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TeacherItem'
+    post:
+      summary: Создать преподавателя
+      tags:
+        - Public
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherInput'
+      responses:
+        '201':
+          description: Преподаватель создан
+
+  /api/teachers/{id}:
+    get:
+      summary: Получить преподавателя по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Преподаватель найден
+    put:
+      summary: Обновить преподавателя по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherInput'
+      responses:
+        '200':
+          description: Преподаватель обновлён
+    delete:
+      summary: Удалить преподавателя по id
+      tags:
+        - Public
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Преподаватель удалён
+
+  /api/contacts:
+    get:
+      summary: Получить контактную информацию
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Контактные данные
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ContactInfo'
+
+  /api/about:
+    get:
+      summary: Получить информацию о медресе
+      tags:
+        - Public
+      responses:
+        '200':
+          description: Описание медресе
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/AboutInfo'
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: admin_session
+
+  schemas:
+    ApplicationInput:
+      type: object
+      required:
+        - name
+        - age
+        - phone
+        - program
+      properties:
+        name:
+          type: string
+          minLength: 2
+          example: Асан
+        age:
+          type: integer
+          minimum: 3
+          maximum: 99
+          example: 18
+        phone:
+          type: string
+          minLength: 7
+          example: +996 555 123 456
+        program:
+          type: string
+          example: Коран и таджвид
+        comment:
+          type: string
+          nullable: true
+          example: Хочу поступить в группу для взрослых
+
+    ApplicationCreateResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: local-1
+            source:
+              type: string
+              enum: [local, supabase]
+              example: supabase
+
+    ApplicationListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: cme_123
+        name:
+          type: string
+          example: Асан
+        age:
+          type: integer
+          example: 18
+        phone:
+          type: string
+          example: +996 555 123 456
+        program:
+          type: string
+          example: Коран и таджвид
+        comment:
+          type: string
+          nullable: true
+          example: Хочу поступить в группу для взрослых
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-08-14T12:00:00.000Z
+
+    ProgramInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: Коран и таджвид
+        description:
+          type: string
+          example: Программа для взрослых и подростков
+        age:
+          type: string
+          example: 12+
+        duration:
+          type: string
+          example: 6 месяцев
+        format:
+          type: string
+          example: Очное обучение
+        teacher:
+          type: string
+          example: Бахадыр устаз
+
+    ProgramItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: program_1
+        title:
+          type: string
+          example: Коран и таджвид
+        description:
+          type: string
+          example: Программа для взрослых и подростков
+        age:
+          type: string
+          example: 12+
+        duration:
+          type: string
+          example: 6 месяцев
+        format:
+          type: string
+          example: Очное обучение
+        teacher:
+          type: string
+          example: Бахадыр устаз
+
+    NewsInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: Открыт набор на новый курс
+        excerpt:
+          type: string
+          example: Начался набор в новую программу обучения.
+        content:
+          type: string
+          example: В медресе стартовал новый набор на обучение.
+        slug:
+          type: string
+          example: otkrit-nabor-na-novyy-kurs
+        category:
+          type: string
+          example: Новости
+        publishedAt:
+          type: string
+          example: 2026-08-14
+
+    NewsItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: news_1
+        title:
+          type: string
+          example: Открыт набор на новый курс
+        slug:
+          type: string
+          example: otkrit-nabor-na-novyy-kurs
+        excerpt:
+          type: string
+          example: Начался набор в новую программу обучения.
+        publishedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2026-08-14T12:00:00.000Z
+
+    EventInput:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          example: День открытых дверей
+        description:
+          type: string
+          example: Приглашаем родителей на экскурсию по медресе.
+        date:
+          type: string
+          example: 2026-08-21
+        location:
+          type: string
+          example: Беловодск
+
+    EventItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: event_1
+        title:
+          type: string
+          example: День открытых дверей
+        description:
+          type: string
+          example: Приглашаем родителей на экскурсию по медресе.
+        date:
+          type: string
+          example: 2026-08-21
+        location:
+          type: string
+          example: Беловодск
+
+    TeacherInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          example: Асанов Умар
+        subject:
+          type: string
+          example: Коран и таджвид
+        position:
+          type: string
+          example: Преподаватель
+        experience:
+          type: string
+          example: 8 лет
+
+    TeacherItem:
+      type: object
+      properties:
+        id:
+          type: string
+          example: teacher_1
+        name:
+          type: string
+          example: Асанов Умар
+        position:
+          type: string
+          example: Преподаватель хадиса
+        specialization:
+          type: string
+          nullable: true
+          example: Исламское образование
+
+    ContactInfo:
+      type: object
+      properties:
+        address:
+          type: string
+          example: г. Бишкек, ул. Исанова 12
+        phone:
+          type: string
+          example: +996 555 123 456
+        email:
+          type: string
+          example: info@medrese.kg
+        workingHours:
+          type: string
+          example: Пн-Сб, 9:00-18:00
+
+    AboutInfo:
+      type: object
+      properties:
+        title:
+          type: string
+          example: Медресе им. Ибрагима
+        description:
+          type: string
+          example: Медресе готовит учащихся по религиозным и общеобразовательным дисциплинам.
+        mission:
+          type: string
+          example: Сохранение и передача исламского знания.
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            fields:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  type: string
+              example:
+                name:
+                  - Укажите имя

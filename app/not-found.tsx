@@ -1,0 +1,1 @@
+import Link from "next/link";export default function NotFound(){return <div className="container py-24"><h1 className="title">Страница не найдена</h1><Link className="btn btn-dark" href="/">На главную</Link></div>}

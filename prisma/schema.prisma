@@ -1,0 +1,28 @@
+generator client { provider = "prisma-client-js" }
+datasource db { provider = "postgresql" url = env("DATABASE_URL") }
+
+enum RoleName { SUPER_ADMIN ADMIN TEACHER STUDENT PARENT EDITOR }
+enum ApplicationStatus { NEW CONTACTED ACCEPTED REJECTED }
+enum StudentStatus { ACTIVE INACTIVE GRADUATED }
+enum AttendanceStatus { PRESENT ABSENT LATE EXCUSED }
+enum PublicationStatus { DRAFT PUBLISHED }
+
+model User { id String @id @default(cuid()) email String @unique passwordHash String? role RoleName createdAt DateTime @default(now()) updatedAt DateTime @updatedAt teacher Teacher? parent Parent? student Student? }
+model Teacher { id String @id @default(cuid()) userId String? @unique name String position String? specialization String? bio String? education String? photoUrl String? user User? @relation(fields:[userId],references:[id]) groups Group[] attendance Attendance[] createdAt DateTime @default(now()) }
+model Parent { id String @id @default(cuid()) userId String? @unique name String phone String? user User? @relation(fields:[userId],references:[id]) students Student[] }
+model Student { id String @id @default(cuid()) userId String? @unique parentId String? name String dateOfBirth DateTime? phone String? status StudentStatus @default(ACTIVE) user User? @relation(fields:[userId],references:[id]) parent Parent? @relation(fields:[parentId],references:[id]) enrollments Enrollment[] attendance Attendance[] grades Grade[] }
+model Program { id String @id @default(cuid()) title String @unique description String? minAge Int? duration String? format String? published Boolean @default(false) courses Course[] applications Application[] }
+model Course { id String @id @default(cuid()) title String description String? programId String program Program @relation(fields:[programId],references:[id]) groups Group[] }
+model Group { id String @id @default(cuid()) title String courseId String? teacherId String? course Course? @relation(fields:[courseId],references:[id]) teacher Teacher? @relation(fields:[teacherId],references:[id]) enrollments Enrollment[] schedules Schedule[] attendance Attendance[] }
+model Enrollment { id String @id @default(cuid()) studentId String groupId String student Student @relation(fields:[studentId],references:[id]) group Group @relation(fields:[groupId],references:[id]) @@unique([studentId,groupId]) }
+model Application { id String @id @default(cuid()) name String age Int phone String programId String? comment String? status ApplicationStatus @default(NEW) program Program? @relation(fields:[programId],references:[id]) createdAt DateTime @default(now()) }
+model Attendance { id String @id @default(cuid()) studentId String groupId String teacherId String? date DateTime @db.Date status AttendanceStatus student Student @relation(fields:[studentId],references:[id]) group Group @relation(fields:[groupId],references:[id]) teacher Teacher? @relation(fields:[teacherId],references:[id]) @@unique([studentId,groupId,date]) }
+model Schedule { id String @id @default(cuid()) day Int startTime String endTime String subject String room String? groupId String group Group @relation(fields:[groupId],references:[id]) }
+model Exam { id String @id @default(cuid()) title String date DateTime courseId String? grades Grade[] }
+model Grade { id String @id @default(cuid()) studentId String examId String score Float comment String? student Student @relation(fields:[studentId],references:[id]) exam Exam @relation(fields:[examId],references:[id]) @@unique([studentId,examId]) }
+model News { id String @id @default(cuid()) title String slug String @unique excerpt String content String coverImage String? category String publishedAt DateTime? authorId String? status PublicationStatus @default(DRAFT) createdAt DateTime @default(now()) }
+model Event { id String @id @default(cuid()) title String description String date DateTime location String? coverImage String? status PublicationStatus @default(DRAFT) }
+model Gallery { id String @id @default(cuid()) title String? imageUrl String category String? alt String createdAt DateTime @default(now()) }
+model Document { id String @id @default(cuid()) title String fileUrl String category String? createdAt DateTime @default(now()) }
+model Notification { id String @id @default(cuid()) title String body String userId String? readAt DateTime? createdAt DateTime @default(now()) }
+model ContactMessage { id String @id @default(cuid()) name String email String? phone String? message String createdAt DateTime @default(now()) }
