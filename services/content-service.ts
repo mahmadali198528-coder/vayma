@@ -4,7 +4,7 @@ export type ContentKind = "programs" | "news" | "events" | "teachers";
 
 export type ContentEntity = {
   id: string;
-  title: string;
+  title?: string;
   description?: string;
   excerpt?: string;
   content?: string;
@@ -67,6 +67,7 @@ const seedStorage: Record<ContentKind, ContentEntity[]> = {
   teachers: [
     {
       id: "teacher-1",
+      title: "Бахадыр устаз",
       name: "Бахадыр устаз",
       subject: "Коран и таджвид",
       position: "Преподаватель",
@@ -74,6 +75,7 @@ const seedStorage: Record<ContentKind, ContentEntity[]> = {
     },
     {
       id: "teacher-2",
+      title: "Тир дамла",
       name: "Тир дамла",
       subject: "Фикх и акида",
       position: "Преподаватель",
@@ -99,7 +101,7 @@ export function createContent(kind: ContentKind, payload: Partial<ContentEntity>
   const id = payload.id ?? `${kind}-${Date.now()}`;
   const item: ContentEntity = {
     id,
-    title: payload.title ?? "Новый элемент",
+    title: payload.title ?? payload.name ?? "Новый элемент",
     description: payload.description ?? "",
     excerpt: payload.excerpt ?? payload.description ?? "",
     content: payload.content ?? payload.description ?? "",
