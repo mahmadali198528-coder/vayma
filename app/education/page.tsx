@@ -6,9 +6,9 @@ import { getLocale, translations } from "@/lib/i18n";
 export default async function Education({
   searchParams,
 }: {
-  searchParams?: Promise<{ lang?: string }> | { lang?: string };
+  searchParams?: Promise<{ lang?: string }>;
 }) {
-  const params = await Promise.resolve(searchParams ?? {});
+  const params = searchParams ? await searchParams : {};
   const lang = getLocale(params.lang);
   const t = translations[lang].education;
 

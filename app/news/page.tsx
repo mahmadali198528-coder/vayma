@@ -8,9 +8,9 @@ export const metadata = { title: "Новости" };
 export default async function News({
   searchParams,
 }: {
-  searchParams?: Promise<{ lang?: string }> | { lang?: string };
+  searchParams?: Promise<{ lang?: string }>;
 }) {
-  const params = await Promise.resolve(searchParams ?? {});
+  const params = searchParams ? await searchParams : {};
   const lang = getLocale(params.lang);
   const t = translations[lang].news;
 
