@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -38,9 +39,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 		<html lang="ru" dir="ltr">
 			<body>
 				<a className="skip-link" href="#content">Перейти к содержанию</a>
-				<SiteHeader />
+				<Suspense fallback={<div />}> 
+					<SiteHeader />
+				</Suspense>
 				<main id="content">{children}</main>
-				<SiteFooter />
+				<Suspense fallback={<div />}> 
+					<SiteFooter />
+				</Suspense>
 			</body>
 		</html>
 	);

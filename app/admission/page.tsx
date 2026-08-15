@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { PageHero } from "@/components/page-hero";
 import { ApplicationForm } from "@/components/application-form";
 import { getLocale, translations } from "@/lib/i18n";
@@ -25,7 +26,9 @@ export default async function Admission({
             ))}
           </div>
           <h2 className="title">{t.formTitle}</h2>
-          <ApplicationForm />
+          <Suspense fallback={<div>Loading...</div>}>
+            <ApplicationForm />
+          </Suspense>
         </div>
       </section>
     </>
