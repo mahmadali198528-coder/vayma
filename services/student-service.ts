@@ -47,6 +47,10 @@ export function listStudents() {
   return [...globalStore.medreseStudents!];
 }
 
+export function listRegistrationCodes() {
+  return [...(globalStore.medreseCodes ?? [])];
+}
+
 export function getRegistrationCode(code: string) {
   return globalStore.medreseCodes?.find((item) => item.code === code);
 }
